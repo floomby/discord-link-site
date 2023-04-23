@@ -1,16 +1,49 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import { FeedbackLevel, colorFromFeedbackLevel } from "~/lib/feedback";
 import { useRouter } from "next/router";
 import LinkAccounts from "~/components/LinkAccounts";
+import { useEffect } from "react";
+import { useNotificationQueue } from "~/lib/notifications";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  const notifications = useNotificationQueue();
+
+  const { mutate: link } = api.link.link.useMutation({
+    onSuccess: () => {
+      const id = new Date().getTime().toString();
+      notifications.add(id, {
+        level: FeedbackLevel.Success,
+        message: "Successfully linked account",
+        duration: 6000,
+      });
+    },
+    onError: (error) => {
+      const id = new Date().getTime().toString();
+      notifications.add(id, {
+        level: FeedbackLevel.Error,
+        message: error.message,
+        duration: 6000,
+      });
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      if (session) {
+        void link({
+          csrfToken: (await getCsrfToken()) || "",
+        });
+      }
+    })();
+  }, [session]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-2 py-2">

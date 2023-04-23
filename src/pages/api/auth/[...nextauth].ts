@@ -9,6 +9,9 @@ import { env } from "~/env.mjs";
 import { authOptions } from "~/server/auth";
 import { SiweMessage } from "siwe";
 import { type NextApiRequest, type NextApiResponse } from "next";
+import db from "~/utils/db";
+
+import LinkUser from "~/utils/odm";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -35,7 +38,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               | string
               | Partial<SiweMessage>
           );
-          const nextAuthUrl = new URL(env.NEXTAUTH_URL);          
+          const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
           const result = await siwe.verify({
             signature: credentials?.signature || "",
@@ -46,6 +49,18 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           });
 
           if (result.success) {
+            await db();
+            // upsert the link user with the csrf token
+            await LinkUser.findOneAndUpdate(
+              { address: siwe.address },
+              {
+                csrfToken: ""
+                  // (credentials as unknown as { csrfToken: string })
+                  //   ?.csrfToken || "",
+              },
+              { upsert: true }
+            );
+
             return {
               id: siwe.address,
             };
