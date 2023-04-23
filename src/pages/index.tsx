@@ -7,7 +7,7 @@ import { api } from "~/utils/api";
 import { FeedbackLevel, colorFromFeedbackLevel } from "~/lib/feedback";
 import { useRouter } from "next/router";
 import LinkAccounts from "~/components/LinkAccounts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNotificationQueue } from "~/lib/notifications";
 
 const Home: NextPage = () => {
@@ -16,12 +16,12 @@ const Home: NextPage = () => {
 
   const notifications = useNotificationQueue();
 
-  const { mutate: link } = api.link.link.useMutation({
+  const { mutate: linkDiscord } = api.link.linkDiscord.useMutation({
     onSuccess: () => {
       const id = new Date().getTime().toString();
       notifications.add(id, {
         level: FeedbackLevel.Success,
-        message: "Successfully linked account",
+        message: "Successfully linked discord account",
         duration: 6000,
       });
     },
@@ -35,30 +35,63 @@ const Home: NextPage = () => {
     },
   });
 
+  // useEffect(() => {
+  //   (async () => {
+  //     if (session) {
+  //       void link({
+  //         csrfToken: (await getCsrfToken()) || "",
+  //       });
+  //     }
+  //   })();
+  // }, [session]);
+
   useEffect(() => {
     (async () => {
+      console.log("Session", session);
       if (session) {
-        void link({
+        void linkDiscord({
           csrfToken: (await getCsrfToken()) || "",
         });
       }
     })();
   }, [session]);
 
+  const [csrfToken, setCsrfToken] = useState<string | undefined>();
+
+  const { data: linkable, refetch } = api.link.linkable.useQuery(csrfToken, {
+    enabled: true,
+    onError: (error) => {
+      const id = new Date().getTime().toString();
+      notifications.add(id, {
+        level: FeedbackLevel.Error,
+        message: error.message,
+        duration: 6000,
+      });
+    },
+    refetchInterval: 5000,
+  });
+
+  useEffect(() => {
+    (async () => {
+      // Technically a race condition, but it should be fine in practice
+      setCsrfToken((await getCsrfToken()) || "");
+      refetch();
+    })();
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-2 py-2">
-      <h1 className="text-4xl font-bold">Log in with Ethereum</h1>
-      <div className="flex flex-row items-center justify-center gap-4">
-        <button
-          className={
-            "rounded px-4 py-2 font-semibold" +
-            colorFromFeedbackLevel(FeedbackLevel.Success, true)
-          }
-          onClick={() => void router.push("/siwe")}
-        >
-          Sign In
-        </button>
-        {session && (
+      <h1 className="text-4xl font-bold">Social Link</h1>
+      <button
+        className={
+          "rounded px-4 py-2 font-semibold" +
+          colorFromFeedbackLevel(FeedbackLevel.Success, true)
+        }
+        onClick={() => void router.push("/siwe")}
+      >
+        Verify Address
+      </button>
+      {linkable && (
           <button
             className={
               "rounded px-4 py-2 font-semibold" +
@@ -71,8 +104,7 @@ const Home: NextPage = () => {
             Sign Out
           </button>
         )}
-      </div>
-      <LinkAccounts />
+      <LinkAccounts show={!!linkable} />
     </main>
   );
 };

@@ -2,12 +2,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import LinkAccount from "./LinkAccount";
 
-const LinkAccounts: React.FC = () => {
-  const { data: sessionData, status } = useSession();
-
+type LinkAccountsProps = {
+  show: boolean;
+};
+const LinkAccounts: React.FC<LinkAccountsProps> = ({ show }) => {
   return (
     <AnimatePresence>
-      {status === "authenticated" && (
+      {show && (
         <motion.div
           initial={{ opacity: 0, scaleY: 0 }}
           animate={{ opacity: 1, scaleY: 1 }}

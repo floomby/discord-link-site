@@ -11,7 +11,7 @@ import { SiweMessage } from "siwe";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import db from "~/utils/db";
 
-import LinkUser from "~/utils/odm";
+import { Linkable } from "~/utils/odm";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -51,12 +51,13 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           if (result.success) {
             await db();
             // upsert the link user with the csrf token
-            await LinkUser.findOneAndUpdate(
+            await Linkable.findOneAndUpdate(
               { address: siwe.address },
               {
-                csrfToken: ""
-                  // (credentials as unknown as { csrfToken: string })
-                  //   ?.csrfToken || "",
+                csrfToken:
+                  (credentials as unknown as { csrfToken: string })
+                    ?.csrfToken || "",
+                createdAt: new Date(),
               },
               { upsert: true }
             );
@@ -68,7 +69,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           return null;
         } catch (e) {
           console.error(e);
-
           return null;
         }
       },

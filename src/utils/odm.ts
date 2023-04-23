@@ -1,16 +1,33 @@
 import mongoose, { SchemaType } from "mongoose";
 
-interface ILinkUser {
+interface IDiscordLink {
   address: string;
-  csrfToken: string;
   discordId: string;
 }
 
-const LinkUserSchema = new mongoose.Schema<ILinkUser>({
+const DiscordLinkSchema = new mongoose.Schema<IDiscordLink>({
   address: { type: String, required: true, unique: true },
-  csrfToken: { type: String, required: true, unique: true },
-  discordId: { type: String },
+  discordId: { type: String, required: true, unique: true },
 });
 
-export default (mongoose.models.LinkUser as mongoose.Model<ILinkUser>) ||
-  mongoose.model<ILinkUser>("LinkUser", LinkUserSchema);
+const DiscordLink =
+  (mongoose.models.DiscordLink as mongoose.Model<IDiscordLink>) ||
+  mongoose.model<IDiscordLink>("DiscordLink", DiscordLinkSchema);
+
+interface ILinkable {
+  address: string;
+  csrfToken: string;
+  createdAt: Date;
+}
+
+const LinkableSchema = new mongoose.Schema<ILinkable>({
+  address: { type: String, required: true, unique: true },
+  csrfToken: { type: String, required: true, unique: true },
+  createdAt: { type: Date, default: Date.now, expires: "5h" },
+});
+
+const Linkable =
+  (mongoose.models.Linkable as mongoose.Model<ILinkable>) ||
+  mongoose.model<ILinkable>("Linkable", LinkableSchema);
+
+export { DiscordLink, Linkable };
