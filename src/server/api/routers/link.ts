@@ -64,7 +64,17 @@ export const linkRouter = createTRPCRouter({
           address: linkable.address,
         });
         if (discordLink) {
-          providers.push("discord");
+          const user = await mongoose.connection.db.collection("users").findOne({
+            _id: discordLink.userId,
+          });
+          if (!user) {
+            throw new Error("User not found");
+          }
+          providers.push({
+            id: "discord",
+            name: user.name ?? "",
+            image: user.image ?? "",
+          });
         }
         return { linkable: true, address: linkable.address, linked: providers };
       } catch (error) {
@@ -103,6 +113,7 @@ export const linkRouter = createTRPCRouter({
           {
             address: linkable.address,
             discordId: account.providerAccountId,
+            userId: account.userId,
           },
           { upsert: true }
         );

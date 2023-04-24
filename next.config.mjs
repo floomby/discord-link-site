@@ -18,5 +18,10 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+
+  // Allow images from discord
+  images: {
+    domains: ["cdn.discordapp.com"],
+  },
 };
 export default config;

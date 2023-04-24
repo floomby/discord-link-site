@@ -9,10 +9,12 @@ import { useRouter } from "next/router";
 import LinkAccounts from "~/components/LinkAccounts";
 import { useEffect, useState } from "react";
 import { useNotificationQueue } from "~/lib/notifications";
+import VerifyAddress from "~/components/VerifyAddress";
+import AddressDisplay from "~/components/AddressDisplay";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
 
   const notifications = useNotificationQueue();
 
@@ -70,15 +72,15 @@ const Home: NextPage = () => {
   useEffect(() => {
     (async () => {
       // Technically a race condition, but it should be fine in practice
-      setCsrfToken((await getCsrfToken()) || "");
+      setCsrfToken(await getCsrfToken());
       refetch();
     })();
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 py-2">
-      <h1 className="text-4xl font-bold">Social Link</h1>
-      <button
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 py-2">
+      <h1 className="mb-8 text-6xl font-bold">Link Socials</h1>
+      {/* <button
         className={
           "rounded px-4 py-2 font-semibold" +
           colorFromFeedbackLevel(FeedbackLevel.Success, true)
@@ -86,8 +88,12 @@ const Home: NextPage = () => {
         onClick={() => void router.push("/siwe")}
       >
         Verify Address
-      </button>
-      {status === "authenticated" && (
+      </button> */}
+      <div className="flex flex-row items-center justify-center gap-4">
+        <AddressDisplay address={linkData?.address} />
+        <VerifyAddress refetch={refetch} linked={!!linkData?.linked} />
+      </div>
+      {/* {status === "authenticated" && (
         <button
           className={
             "rounded px-4 py-2 font-semibold" +
@@ -99,7 +105,7 @@ const Home: NextPage = () => {
         >
           Sign Out
         </button>
-      )}
+      )} */}
       <LinkAccounts
         show={!!linkData?.linkable && status === "authenticated"}
         linkedProviders={linkData?.linked ?? []}

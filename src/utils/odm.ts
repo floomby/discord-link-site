@@ -1,13 +1,15 @@
-import mongoose, { SchemaType } from "mongoose";
+import mongoose, { ObjectId, Schema, SchemaType } from "mongoose";
 
 interface IDiscordLink {
   address: string;
   discordId: string;
+  userId: ObjectId;
 }
 
 const DiscordLinkSchema = new mongoose.Schema<IDiscordLink>({
   address: { type: String, required: true, unique: true },
   discordId: { type: String, required: true, unique: true },
+  userId: { type: Schema.Types.ObjectId, required: true, unique: true },
 });
 
 const DiscordLink =
