@@ -35,26 +35,21 @@ const Home: NextPage = () => {
     },
   });
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (session) {
-  //       void link({
-  //         csrfToken: (await getCsrfToken()) || "",
-  //       });
-  //     }
-  //   })();
-  // }, [session]);
+  const [suppressedDiscordLink, setSuppressedDiscordLink] = useState(true);
 
   useEffect(() => {
     (async () => {
-      console.log("Session", session);
-      if (session) {
+      // console.log("Session", session);
+      if (!!session?.user?.email && !suppressedDiscordLink) {
+        setSuppressedDiscordLink(true);
         void linkDiscord({
           csrfToken: (await getCsrfToken()) || "",
         });
+      } else {
+        setSuppressedDiscordLink(false);
       }
     })();
-  }, [session]);
+  }, [status]);
 
   const [csrfToken, setCsrfToken] = useState<string | undefined>();
 
@@ -91,20 +86,20 @@ const Home: NextPage = () => {
       >
         Verify Address
       </button>
-      {linkable && (
-          <button
-            className={
-              "rounded px-4 py-2 font-semibold" +
-              colorFromFeedbackLevel(FeedbackLevel.Primary, true)
-            }
-            onClick={(e) => {
-              void signOut();
-            }}
-          >
-            Sign Out
-          </button>
-        )}
-      <LinkAccounts show={!!linkable} />
+      {status === "authenticated" && (
+        <button
+          className={
+            "rounded px-4 py-2 font-semibold" +
+            colorFromFeedbackLevel(FeedbackLevel.Primary, true)
+          }
+          onClick={(e) => {
+            void signOut();
+          }}
+        >
+          Sign Out
+        </button>
+      )}
+      <LinkAccounts show={!!linkable && status === "authenticated"} />
     </main>
   );
 };

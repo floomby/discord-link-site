@@ -51,7 +51,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           if (result.success) {
             await db();
             // upsert the link user with the csrf token
-            console.log("upserting", siwe.address);
             const csrfToken =
               (credentials as unknown as { csrfToken: string })?.csrfToken ||
               "";
