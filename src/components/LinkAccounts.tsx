@@ -4,8 +4,12 @@ import LinkAccount from "./LinkAccount";
 
 type LinkAccountsProps = {
   show: boolean;
+  linkedProviders: string[];
 };
-const LinkAccounts: React.FC<LinkAccountsProps> = ({ show }) => {
+const LinkAccounts: React.FC<LinkAccountsProps> = ({
+  show,
+  linkedProviders,
+}) => {
   return (
     <AnimatePresence>
       {show && (
@@ -16,8 +20,8 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({ show }) => {
           transition={{ duration: 0.2 }}
           className="flex flex-row items-center justify-center gap-4"
         >
-          <LinkAccount id="discord" name="Discord" />
-          <LinkAccount id="twitter" name="Twitter (Not Implemented)" />
+          <LinkAccount id="discord" name="Discord" linked={linkedProviders.includes("discord")} />
+          <LinkAccount id="twitter" name="Twitter (Not Implemented)" linked={false} />
         </motion.div>
       )}
     </AnimatePresence>

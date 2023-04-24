@@ -18,6 +18,7 @@ const Home: NextPage = () => {
 
   const { mutate: linkDiscord } = api.link.linkDiscord.useMutation({
     onSuccess: () => {
+      void refetch();
       const id = new Date().getTime().toString();
       notifications.add(id, {
         level: FeedbackLevel.Success,
@@ -53,7 +54,7 @@ const Home: NextPage = () => {
 
   const [csrfToken, setCsrfToken] = useState<string | undefined>();
 
-  const { data: linkable, refetch } = api.link.linkable.useQuery(csrfToken, {
+  const { data: linkData, refetch } = api.link.linkData.useQuery(csrfToken, {
     enabled: true,
     onError: (error) => {
       const id = new Date().getTime().toString();
@@ -99,7 +100,10 @@ const Home: NextPage = () => {
           Sign Out
         </button>
       )}
-      <LinkAccounts show={!!linkable && status === "authenticated"} />
+      <LinkAccounts
+        show={!!linkData?.linkable && status === "authenticated"}
+        linkedProviders={linkData?.linked ?? []}
+      />
     </main>
   );
 };

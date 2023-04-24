@@ -43,18 +43,30 @@ const recoverAccount = async (user: ContextUser) => {
 };
 
 export const linkRouter = createTRPCRouter({
-  linkable: publicProcedure
+  linkData: publicProcedure
     .input(z.string().length(64).optional())
     .query(async ({ input }) => {
       if (!input) {
-        return false;
+        return { linkable: false };
       }
       try {
         await db();
         const linkable = await Linkable.findOne({
           csrfToken: input,
         });
-        return !!linkable;
+        if (!linkable) {
+          return { linkable: false };
+        }
+        // get the current providers linked
+        const providers = [];
+
+        const discordLink = await DiscordLink.findOne({
+          address: linkable.address,
+        });
+        if (discordLink) {
+          providers.push("discord");
+        }
+        return { linkable: true, address: linkable.address, linked: providers };
       } catch (error) {
         console.error(error);
         throw new Error("Unable to query linkablity status");

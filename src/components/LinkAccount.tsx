@@ -4,8 +4,9 @@ import { FeedbackLevel, colorFromFeedbackLevel } from "~/lib/feedback";
 type LinkAccountProps = {
   id: string;
   name: string;
+  linked: boolean;
 };
-const LinkAccount: React.FC<LinkAccountProps> = ({ id, name }) => {
+const LinkAccount: React.FC<LinkAccountProps> = ({ id, name, linked }) => {
   return (
     <button
       onClick={async () =>
@@ -14,7 +15,8 @@ const LinkAccount: React.FC<LinkAccountProps> = ({ id, name }) => {
       key={name}
       className={
         "w-full rounded-lg px-2 py-2 font-semibold" +
-        colorFromFeedbackLevel(FeedbackLevel.Secondary, true)
+        colorFromFeedbackLevel(FeedbackLevel.Secondary, true) + 
+        (linked ? " opacity-50 cursor-not-allowed" : "")
       }
     >
       Link {name}
