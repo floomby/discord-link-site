@@ -23,7 +23,6 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-    provider?: string;
   }
 
   // interface User {
@@ -44,20 +43,13 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, user, token }) => {
-      console.log("session", session, user, token);
       return {
         ...session,
         user: {
           ...session.user,
         },
-        provider: token?.provider,
       };
     },
-    // jwt: async ({ token, account }) => {
-    //   token.provider = account?.provider;
-    //   console.log("jwt", token.provider);
-    //   return token;
-    // },
   },
 
   providers: [

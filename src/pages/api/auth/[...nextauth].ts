@@ -51,14 +51,14 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           if (result.success) {
             await db();
             // upsert the link user with the csrf token
+            console.log("upserting", siwe.address);
+            const csrfToken =
+              (credentials as unknown as { csrfToken: string })?.csrfToken ||
+              "";
+            const address = siwe.address;
             await Linkable.findOneAndUpdate(
-              { address: siwe.address },
-              {
-                csrfToken:
-                  (credentials as unknown as { csrfToken: string })
-                    ?.csrfToken || "",
-                createdAt: new Date(),
-              },
+              { $or: [{ address }, { csrfToken }] },
+              { address, csrfToken, createdAt: new Date() },
               { upsert: true }
             );
 
