@@ -2,11 +2,9 @@
 
 ### TODO (frontend)
 
-- Linked account indication
-- Twitter dev auth (local)
-- Remove siwe page (verify address component)
-- Optimize networking?
-- Spruce up UI
+- Spruce up UI?
+- Google?
+- SEO?
 
 ### TODO (bot)
 

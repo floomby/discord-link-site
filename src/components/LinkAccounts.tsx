@@ -9,10 +9,12 @@ type LinkAccountsProps = {
     name: string;
     image: string;
   }[];
+  showProfiles: boolean;
 };
 const LinkAccounts: React.FC<LinkAccountsProps> = ({
   show,
   linkedProviders,
+  showProfiles,
 }) => {
   return (
     <AnimatePresence>
@@ -28,18 +30,24 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
             id="discord"
             name="Discord"
             linked={linkedProviders.map((p) => p.id).includes("discord")}
-            profileData={linkedProviders.find((p) => p.id === "discord") || {
-              name: undefined,
-              image: undefined,
+            profileData={{
+              ...(linkedProviders.find((p) => p.id === "discord") || {
+                name: undefined,
+                image: undefined,
+              }),
+              show: showProfiles,
             }}
           />
           <LinkAccount
             id="twitter"
             name="Twitter"
             linked={linkedProviders.map((p) => p.id).includes("twitter")}
-            profileData={linkedProviders.find((p) => p.id === "twitter") || {
-              name: undefined,
-              image: undefined,
+            profileData={{
+              ...(linkedProviders.find((p) => p.id === "twitter") || {
+                name: undefined,
+                image: undefined,
+              }),
+              show: showProfiles,
             }}
           />
         </motion.div>

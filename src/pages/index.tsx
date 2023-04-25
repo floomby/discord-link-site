@@ -111,6 +111,7 @@ const Home: NextPage = () => {
       <LinkAccounts
         show={!!linkData?.linkable}
         linkedProviders={linkData?.linked ?? []}
+        showProfiles={status === "unauthenticated" || !session?.user?.name}
       />
     </main>
   );

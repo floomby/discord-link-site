@@ -4,9 +4,10 @@ import Image from "next/image";
 export type ProfileDisplayProps = {
   name: string | undefined;
   image: string | undefined;
+  show: boolean;
 };
-const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ name, image }) => {
-  const shown = name || image;
+const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ name, image, show }) => {
+  const shown = (name || image) && show;
 
   return (
     <AnimatePresence>
