@@ -35,8 +35,8 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
           />
           <LinkAccount
             id="twitter"
-            name="Twitter (TODO)"
-            linked={false}
+            name="Twitter"
+            linked={linkedProviders.map((p) => p.id).includes("twitter")}
             profileData={linkedProviders.find((p) => p.id === "twitter") || {
               name: undefined,
               image: undefined,

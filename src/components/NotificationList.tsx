@@ -10,7 +10,7 @@ const NotificationList: React.FC = () => {
       style={{
         position: "fixed",
         zIndex: 100,
-        bottom: 16,
+        top: 16,
         left: "50%",
         transform: "translate(-50%, 0)",
       }}

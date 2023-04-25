@@ -18,13 +18,14 @@ const Home: NextPage = () => {
 
   const notifications = useNotificationQueue();
 
-  const { mutate: linkDiscord } = api.link.linkDiscord.useMutation({
-    onSuccess: () => {
+  const { mutate: link } = api.link.link.useMutation({
+    onSuccess: async (provider: string) => {
+      await signOut();
       void refetch();
       const id = new Date().getTime().toString();
       notifications.add(id, {
         level: FeedbackLevel.Success,
-        message: "Successfully linked discord account",
+        message: `Successfully linked ${provider} account`,
         duration: 6000,
       });
     },
@@ -38,18 +39,19 @@ const Home: NextPage = () => {
     },
   });
 
-  const [suppressedDiscordLink, setSuppressedDiscordLink] = useState(true);
+  const [suppressedLink, setSuppressedLink] = useState(true);
 
   useEffect(() => {
     (async () => {
-      // console.log("Session", session);
-      if (!!session?.user?.email && !suppressedDiscordLink) {
-        setSuppressedDiscordLink(true);
-        void linkDiscord({
+      console.log("Session", session, suppressedLink);
+      if (!!session?.user?.name && !suppressedLink) {
+        setSuppressedLink(true);
+        console.log("Linking");
+        void link({
           csrfToken: (await getCsrfToken()) || "",
         });
       } else {
-        setSuppressedDiscordLink(false);
+        setSuppressedLink(false);
       }
     })();
   }, [status]);
@@ -107,7 +109,7 @@ const Home: NextPage = () => {
         </button>
       )} */}
       <LinkAccounts
-        show={!!linkData?.linkable && status === "authenticated"}
+        show={!!linkData?.linkable}
         linkedProviders={linkData?.linked ?? []}
       />
     </main>

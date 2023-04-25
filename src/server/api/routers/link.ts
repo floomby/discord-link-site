@@ -7,7 +7,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import db from "~/utils/db";
-import { Linkable, DiscordLink } from "~/utils/odm";
+import { Linkable, DiscordLink, TwitterLink } from "~/utils/odm";
 
 type ContextUser = {
   name?: string | null | undefined;
@@ -54,6 +54,7 @@ export const linkRouter = createTRPCRouter({
         const linkable = await Linkable.findOne({
           csrfToken: input,
         });
+        // console.log("Checking linkability of", input, linkable);
         if (!linkable) {
           return { linkable: false };
         }
@@ -76,6 +77,24 @@ export const linkRouter = createTRPCRouter({
             image: user.image ?? "",
           });
         }
+
+        const twitterLink = await TwitterLink.findOne({
+          address: linkable.address,
+        });
+        if (twitterLink) {
+          const user = await mongoose.connection.db.collection("users").findOne({
+            _id: twitterLink.userId,
+          });
+          if (!user) {
+            throw new Error("User not found");
+          }
+          providers.push({
+            id: "twitter",
+            name: user.name ?? "",
+            image: user.image ?? "",
+          });
+        }
+
         return { linkable: true, address: linkable.address, linked: providers };
       } catch (error) {
         console.error(error);
@@ -83,7 +102,7 @@ export const linkRouter = createTRPCRouter({
       }
     }),
 
-  linkDiscord: protectedProcedure
+  link: protectedProcedure
     .input(z.object({ csrfToken: z.string().length(64) }))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -103,23 +122,45 @@ export const linkRouter = createTRPCRouter({
           throw new Error("Invalid CSRF token");
         }
 
-        await DiscordLink.findOneAndUpdate(
-          {
-            $or: [
-              { address: linkable.address },
-              { discordId: account.providerAccountId },
-            ],
-          },
-          {
-            address: linkable.address,
-            discordId: account.providerAccountId,
-            userId: account.userId,
-          },
-          { upsert: true }
-        );
-        return;
+        switch (account.provider) {
+          case "discord":
+            await DiscordLink.findOneAndUpdate(
+              {
+                $or: [
+                  { address: linkable.address },
+                  { discordId: account.providerAccountId },
+                ],
+              },
+              {
+                address: linkable.address,
+                discordId: account.providerAccountId,
+                userId: account.userId,
+              },
+              { upsert: true }
+            );
+            break;
+          case "twitter":
+            await TwitterLink.findOneAndUpdate(
+              {
+                $or: [
+                  { address: linkable.address },
+                  { twitterId: account.providerAccountId },
+                ],
+              },
+              {
+                address: linkable.address,
+                twitterId: account.providerAccountId,
+                userId: account.userId,
+              },
+              { upsert: true }
+            );
+            break;
+          default:
+            throw new Error("Invalid provider");
+        }
+        return account.provider;
       } catch (error) {
-        // console.error(error);
+        console.error(error);
         throw new Error("Failed to link");
       }
     }),

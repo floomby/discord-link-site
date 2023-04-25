@@ -21,7 +21,7 @@ const config = {
 
   // Allow images from discord
   images: {
-    domains: ["cdn.discordapp.com"],
+    domains: ["cdn.discordapp.com", "pbs.twimg.com"],
   },
 };
 export default config;
