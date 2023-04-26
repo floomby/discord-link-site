@@ -1,4 +1,8 @@
-import mongoose, { Mongoose } from "mongoose";
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
+import mongoose from "mongoose";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
@@ -62,9 +66,11 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         if (profile.avatar === null) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           const defaultAvatarNumber = parseInt(profile.discriminator) % 5
           profile.image_url = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNumber}.png`
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           const format = profile.avatar.startsWith("a_") ? "gif" : "png"
           profile.image_url = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${format}`
         }
