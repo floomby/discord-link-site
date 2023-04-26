@@ -80,9 +80,15 @@ const Home: NextPage = () => {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 py-2">
-      <h1 className="mb-8 text-6xl font-bold">Link Socials</h1>
-      {/* <button
+    <>
+      <Head>
+        <title>Link Socials</title>
+        <meta name="description" content="Link Socials" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 py-2">
+        <h1 className="mb-8 text-6xl font-bold">Link Socials</h1>
+        {/* <button
         className={
           "rounded px-4 py-2 font-semibold" +
           colorFromFeedbackLevel(FeedbackLevel.Success, true)
@@ -91,11 +97,11 @@ const Home: NextPage = () => {
       >
         Verify Address
       </button> */}
-      <div className="flex flex-row items-center justify-center gap-4">
-        <AddressDisplay address={linkData?.address} />
-        <VerifyAddress refetch={refetch} linked={!!linkData?.linked} />
-      </div>
-      {/* {status === "authenticated" && (
+        <div className="flex flex-row items-center justify-center gap-4">
+          <AddressDisplay address={linkData?.address} />
+          <VerifyAddress refetch={refetch} linked={!!linkData?.linked} />
+        </div>
+        {/* {status === "authenticated" && (
         <button
           className={
             "rounded px-4 py-2 font-semibold" +
@@ -108,12 +114,13 @@ const Home: NextPage = () => {
           Sign Out
         </button>
       )} */}
-      <LinkAccounts
-        show={!!linkData?.linkable}
-        linkedProviders={linkData?.linked ?? []}
-        showProfiles={status === "unauthenticated" || !session?.user?.name}
-      />
-    </main>
+        <LinkAccounts
+          show={!!linkData?.linkable}
+          linkedProviders={linkData?.linked ?? []}
+          showProfiles={status === "unauthenticated" || !session?.user?.name}
+        />
+      </main>
+    </>
   );
 };
 

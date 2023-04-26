@@ -1,6 +1,7 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import { DefaultSeo } from "next-seo";
 
 import { api } from "~/utils/api";
 
@@ -37,6 +38,25 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <WidthProvider>
             <div className="absolute inset-0 min-h-screen min-w-max text-black dark:text-white">
               {/* <Header /> */}
+              <DefaultSeo
+                openGraph={{
+                  type: "website",
+                  locale: "en_US",
+                  url: "https://www.social-link.xyz/",
+                  siteName: "Social Link",
+                  images: [
+                    {
+                      url: "https://www.social-link.xyz/social-link.png",
+                      alt: "Social Link",
+                    },
+                  ],
+                }}
+                // twitter={{
+                //   handle: '@handle',
+                //   site: '@site',
+                //   cardType: 'summary_large_image',
+                // }}
+              />
               <Component {...pageProps} />
               <NotificationList />
             </div>

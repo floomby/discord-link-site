@@ -8,7 +8,8 @@
 
 ### TODO (bot)
 
-- Make the bot
+- Assign verified role
+- Handle revoking of the role
 
 ### TODO (deployment)
 
