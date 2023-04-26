@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import mongoose from "mongoose";
 import { z } from "zod";
 
@@ -158,7 +160,7 @@ export const linkRouter = createTRPCRouter({
           default:
             throw new Error("Invalid provider");
         }
-        return account.provider;
+        return account.provider as string;
       } catch (error) {
         console.error(error);
         throw new Error("Failed to link");

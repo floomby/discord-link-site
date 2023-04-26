@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useSession } from "next-auth/react";
 import LinkAccount from "./LinkAccount";
 
 type LinkAccountsProps = {

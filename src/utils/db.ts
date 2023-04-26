@@ -14,11 +14,11 @@ export default async () => {
     console.log("[MONGOOSE] Creating New Connection");
 
     mongoose.connection.on("open", () => {
-      console.log("[MONGOOSE] Connected with poolSize " + poolsize);
+      console.log(`[MONGOOSE] Connected with poolSize ${poolsize}`);
     });
 
     try {
-      mongoose.connect(env.MONGODB_URI, {});
+      await mongoose.connect(env.MONGODB_URI, {});
       mongoose.set("bufferTimeoutMS", 2500);
     } catch (err) {
       console.log("Mongoose connection error", err);

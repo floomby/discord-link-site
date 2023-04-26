@@ -7,7 +7,7 @@ import { colorFromFeedbackLevel, FeedbackLevel } from "~/lib/feedback";
 import { useNotificationQueue } from "~/lib/notifications";
 
 type VerifyAddressProps = {
-  refetch: () => void;
+  refetch: () => Promise<any>;
   linked: boolean;
 };
 const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
@@ -50,7 +50,7 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
         signature,
         callbackUrl,
       });
-      refetch();
+      void refetch();
     } catch (error) {
       if ((error as Error).message === "Connector not found") {
         console.warn("Suppressing missing connector");
@@ -68,7 +68,7 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
 
   useEffect(() => {
     if (isSuccess && !hasFired) {
-      handleLogin();
+      void handleLogin();
     }
   }, [isSuccess, hasFired]);
 
@@ -79,7 +79,7 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
         colorFromFeedbackLevel(FeedbackLevel.Success, true)
       }
       onClick={(e) => {
-        handleLogin();
+        void handleLogin();
       }}
     >
       {linked ? "Switch Accounts" : "Verify Address"}

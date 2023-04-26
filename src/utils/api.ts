@@ -14,7 +14,7 @@ import { type AppRouter } from "~/server/api/root";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
+  // if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
   return `${env.NEXTAUTH_URL?.split(":").slice(0, 2).join(":")}:${
     process.env.PORT ?? 3001
   }`; // dev SSR should use localhost

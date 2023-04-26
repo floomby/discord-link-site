@@ -42,7 +42,7 @@ const Home: NextPage = () => {
   const [suppressedLink, setSuppressedLink] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       console.log("Session", session, suppressedLink);
       if (!!session?.user?.name && !suppressedLink) {
         setSuppressedLink(true);
@@ -72,10 +72,10 @@ const Home: NextPage = () => {
   });
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       // Technically a race condition, but it should be fine in practice
       setCsrfToken(await getCsrfToken());
-      refetch();
+      void refetch();
     })();
   }, []);
 

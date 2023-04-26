@@ -17,11 +17,11 @@ const LinkAccount: React.FC<LinkAccountProps> = ({
   return (
     <div className="flex flex-col items-center justify-center gap-2">
       <button
-        onClick={async () => {
+        onClick={() => void (async () => {
           void signIn(id, undefined, {
             csrfToken: (await getCsrfToken()) || "",
           });
-        }}
+        })()}
         key={name}
         className={
           "w-full rounded-lg px-2 py-2 font-semibold" +
