@@ -9,7 +9,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import db from "~/utils/db";
-import { Linkable, DiscordLink, TwitterLink } from "~/utils/odm";
+import { Linkable, ProviderLink } from "~/utils/odm";
 
 type ContextUser = {
   name?: string | null | undefined;
@@ -63,38 +63,28 @@ export const linkRouter = createTRPCRouter({
         // get the current providers linked
         const providers = [];
 
-        const discordLink = await DiscordLink.findOne({
-          address: linkable.address,
-        });
-        if (discordLink) {
-          const user = await mongoose.connection.db.collection("users").findOne({
-            _id: discordLink.userId,
-          });
-          if (!user) {
-            throw new Error("User not found");
-          }
-          providers.push({
-            id: "discord",
-            name: user.name ?? "",
-            image: user.image ?? "",
-          });
-        }
+        const using = ["discord", "twitter", "google"];
 
-        const twitterLink = await TwitterLink.findOne({
-          address: linkable.address,
-        });
-        if (twitterLink) {
-          const user = await mongoose.connection.db.collection("users").findOne({
-            _id: twitterLink.userId,
+        for (const provider of using) {
+          const link = await ProviderLink.findOne({
+            address: linkable.address,
+            provider,
           });
-          if (!user) {
-            throw new Error("User not found");
+          if (link) {
+            const user = await mongoose.connection.db
+              .collection("users")
+              .findOne({
+                _id: link.userId,
+              });
+            if (!user) {
+              throw new Error("User not found");
+            }
+            providers.push({
+              id: provider,
+              name: user.name ?? "",
+              image: user.image ?? "",
+            });
           }
-          providers.push({
-            id: "twitter",
-            name: user.name ?? "",
-            image: user.image ?? "",
-          });
         }
 
         return { linkable: true, address: linkable.address, linked: providers };
@@ -124,42 +114,28 @@ export const linkRouter = createTRPCRouter({
           throw new Error("Invalid CSRF token");
         }
 
-        switch (account.provider) {
-          case "discord":
-            await DiscordLink.findOneAndUpdate(
+        await ProviderLink.findOneAndUpdate(
+          {
+            $and: [
               {
                 $or: [
                   { address: linkable.address },
-                  { discordId: account.providerAccountId },
+                  { providerId: account.providerAccountId },
                 ],
               },
-              {
-                address: linkable.address,
-                discordId: account.providerAccountId,
-                userId: account.userId,
-              },
-              { upsert: true }
-            );
-            break;
-          case "twitter":
-            await TwitterLink.findOneAndUpdate(
-              {
-                $or: [
-                  { address: linkable.address },
-                  { twitterId: account.providerAccountId },
-                ],
-              },
-              {
-                address: linkable.address,
-                twitterId: account.providerAccountId,
-                userId: account.userId,
-              },
-              { upsert: true }
-            );
-            break;
-          default:
-            throw new Error("Invalid provider");
-        }
+              { provider: account.provider },
+            ],
+          },
+          {
+            address: linkable.address,
+            providerId: account.providerAccountId,
+            userId: account.userId,
+            provider: account.provider,
+            linkedAt: new Date(),
+          },
+          { upsert: true }
+        );
+
         return account.provider as string;
       } catch (error) {
         console.error(error);

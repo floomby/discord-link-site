@@ -7,6 +7,7 @@ import {
 } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import TwitterProvider from "next-auth/providers/twitter";
+import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import db from "~/utils/db";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
@@ -44,6 +45,7 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, user, token }) => {
+      // console.log("session callback", session, user, token);
       return {
         ...session,
         user: {
@@ -57,11 +59,17 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     TwitterProvider({
       clientId: env.TWITTER_CLIENT_ID,
       clientSecret: env.TWITTER_CLIENT_SECRET,
       version: "2.0",
+    }),
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     /**
      * ...add more providers here.
@@ -76,12 +84,12 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  adapter: MongoDBAdapter(
-    (async () => {
-      await db();
-      return mongoose.connection.getClient();
-    })()
-  ),
+  // adapter: MongoDBAdapter(
+  //   (async () => {
+  //     await db();
+  //     return mongoose.connection.getClient();
+  //   })()
+  // ),
 };
 
 /**

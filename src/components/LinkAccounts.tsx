@@ -49,6 +49,18 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
               show: showProfiles,
             }}
           />
+          <LinkAccount
+            id="google"
+            name="Google"
+            linked={linkedProviders.map((p) => p.id).includes("google")}
+            profileData={{
+              ...(linkedProviders.find((p) => p.id === "google") || {
+                name: undefined,
+                image: undefined,
+              }),
+              show: showProfiles,
+            }}
+          />
         </motion.div>
       )}
     </AnimatePresence>

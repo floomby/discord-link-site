@@ -46,7 +46,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
                   siteName: "Social Link",
                   images: [
                     {
-                      url: "https://www.social-link.xyz/social-link.png",
+                      url: "https://www.social-link.xyz/social-link-1024.png",
                       alt: "Social Link",
                     },
                   ],
