@@ -5,6 +5,8 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { useEffect, useState } from "react";
 import { colorFromFeedbackLevel, FeedbackLevel } from "~/lib/feedback";
 import { useNotificationQueue } from "~/lib/notifications";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 type VerifyAddressProps = {
   refetch: () => Promise<any>;
@@ -83,7 +85,10 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
         void handleLogin();
       }}
     >
-      {linked ? "Switch Accounts" : "Verify Address"}
+      <div className="flex flex-row items-center justify-center">
+        {linked ? "Switch Accounts" : "Verify Address"}
+        <FontAwesomeIcon icon={faEthereum} className="ml-2 h-6" />
+      </div>
     </button>
   );
 };

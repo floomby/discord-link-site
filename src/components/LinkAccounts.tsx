@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import LinkAccount from "./LinkAccount";
+import { faDiscord, faGoogle, faTwitter } from "@fortawesome/free-brands-svg-icons";
 
 type LinkAccountsProps = {
   show: boolean;
@@ -28,6 +29,7 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
           <LinkAccount
             id="discord"
             name="Discord"
+            iconDefinition={faDiscord}
             linked={linkedProviders.map((p) => p.id).includes("discord")}
             profileData={{
               ...(linkedProviders.find((p) => p.id === "discord") || {
@@ -40,6 +42,7 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
           <LinkAccount
             id="twitter"
             name="Twitter"
+            iconDefinition={faTwitter}
             linked={linkedProviders.map((p) => p.id).includes("twitter")}
             profileData={{
               ...(linkedProviders.find((p) => p.id === "twitter") || {
@@ -52,6 +55,7 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
           <LinkAccount
             id="google"
             name="Google"
+            iconDefinition={faGoogle}
             linked={linkedProviders.map((p) => p.id).includes("google")}
             profileData={{
               ...(linkedProviders.find((p) => p.id === "google") || {

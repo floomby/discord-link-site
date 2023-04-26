@@ -98,8 +98,6 @@ export const linkRouter = createTRPCRouter({
     .input(z.object({ csrfToken: z.string().length(64) }))
     .mutation(async ({ ctx, input }) => {
       try {
-        await db();
-
         const account = await recoverAccount(ctx.session.user);
 
         // TODO Make this a transaction
