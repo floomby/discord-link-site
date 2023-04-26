@@ -38,11 +38,11 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               | string
               | Partial<SiweMessage>
           );
-          const nextAuthUrl = new URL(env.NEXTAUTH_URL);
+          // const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
           const result = await siwe.verify({
             signature: credentials?.signature || "",
-            domain: nextAuthUrl.host,
+            domain: "www.social-link.xyz",
             nonce:
               (credentials as unknown as { csrfToken: string })?.csrfToken ||
               "",

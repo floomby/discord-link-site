@@ -32,7 +32,8 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
     try {
       const callbackUrl = "/protected";
       const message = new SiweMessage({
-        domain: window.location.host,
+        // domain: window.location.host,
+        domain: "www.social-link.xyz",
         address: address,
         statement: "Sign in with Ethereum to the app.",
         uri: window.location.origin,
