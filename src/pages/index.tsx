@@ -20,8 +20,8 @@ const Home: NextPage = () => {
 
   const { mutate: link } = api.link.link.useMutation({
     onSuccess: async (provider: string) => {
+      await refetch();
       await signOut();
-      void refetch();
       const id = new Date().getTime().toString();
       notifications.add(id, {
         level: FeedbackLevel.Success,
