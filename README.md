@@ -1,17 +1,13 @@
-# Discord Social Link Frontend
+<p align="center">
+   <br/>
+   <a href="https://social-link.xyz" target="_blank"><img width="150px" src="https://social-link.xyz/social-link-1024.png" /></a>
+   <h3 align="center">Social Link</h3>
+</p>
 
-### TODO (frontend)
+## Overview
 
-- Spruce up UI?
-- Google
-- Instagram
+Verify and link ethereum addresses and other social media accounts to your discord account
 
-### TODO (bot)
+### Get the bot
 
-- Assign verified role
-- Handle revoking of the role
-
-### TODO (deployment)
-
-- See if mongo connection closing is an issue
-
+(WIP Coming soon)
