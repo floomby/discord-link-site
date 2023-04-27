@@ -6,8 +6,8 @@
 
 ## Overview
 
-Verify and link ethereum addresses and other social media accounts to your discord account
+Link your social media accounts to your ethereum address for verification by the Social Link discord bot.
 
 ### Get the bot
 
-(WIP Coming soon)
+[Invite the bot](https://discord.com/api/oauth2/authorize?client_id=1099405375624728597&permissions=2415921152&scope=bot)
