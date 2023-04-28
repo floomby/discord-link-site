@@ -84,7 +84,7 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({
         className={
           "rounded-lg px-4 py-2 font-semibold w-full" +
           colorFromFeedbackLevel(FeedbackLevel.Secondary, true) +
-          (!linkedAddress || address !== linkedAddress ? " opacity-80" : "")
+          (!!linkedAddress && address === linkedAddress ? " opacity-80" : "")
         }
         onClick={(e) => {
           void handleLogin();
