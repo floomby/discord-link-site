@@ -1,4 +1,4 @@
-import mongoose, { ObjectId, Schema, SchemaType } from "mongoose";
+import mongoose, { type ObjectId, Schema } from "mongoose";
 
 interface IProviderLink {
   discordId: string;

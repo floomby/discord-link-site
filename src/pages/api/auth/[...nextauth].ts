@@ -13,6 +13,7 @@ import db from "~/utils/db";
 
 import { Linkable, ProviderLink } from "~/utils/odm";
 import { updateDiscordUser } from "~/utils/webhook";
+import mongoose from "mongoose";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -56,45 +57,66 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               "";
             const address = siwe.address;
 
-            const link = await Linkable.findOne({ csrfToken });
+            // start a transaction
+            const session = await mongoose.startSession();
+            session.startTransaction();
+            const abort = async () => {
+              await session.abortTransaction();
+              await session.endSession();
+            };
+            try {
+              const link = await Linkable.findOne({ csrfToken });
 
-            if (!link) {
-              return null;
-            }
+              if (!link) {
+                return null;
+              }
 
-            const old = await ProviderLink.findOneAndUpdate(
-              {
-                $and: [
-                  {
-                    $or: [
-                      { discordId: link.discordId },
-                      { providerId: address },
-                    ],
-                  },
-                  { provider: "ethereum" },
-                ],
-              },
-              {
-                discordId: link.discordId,
-                providerId: address,
-                userId: null,
+              const old = await ProviderLink.findOneAndUpdate(
+                { provider: "ethereum", discordId: link.discordId },
+                {
+                  discordId: link.discordId,
+                  providerId: address,
+                  userId: null,
+                  provider: "ethereum",
+                  linkedAt: new Date(),
+                },
+                { upsert: true }
+              );
+
+              if (old?.providerId === address) {
+                await session.commitTransaction();
+                await session.endSession();
+                return {
+                  id: address,
+                };
+              }
+
+              const other = await ProviderLink.findOne({
                 provider: "ethereum",
-                linkedAt: new Date(),
-              },
-              { upsert: true }
-            );
+                // case insensitive
+                providerId: { $regex: new RegExp(`^${address}$`, "i") },
+                discordId: { $ne: link.discordId },
+              });
 
-            if (old?.providerId !== address) {
-              const oldDiscordId = old?.discordId;
-              if (oldDiscordId && oldDiscordId !== link.discordId) {
-                updateDiscordUser(oldDiscordId);
+              if (other) {
+                await ProviderLink.deleteOne({ _id: other._id });                
+              }
+
+              await session.commitTransaction();
+              await session.endSession();
+
+              if (other) {
+                updateDiscordUser(other.discordId);
               }
               updateDiscordUser(link.discordId);
+              return {
+                id: address,
+              };
+            } catch (e) {
+              console.error(e);
+              await abort();
+              return null;
             }
-
-            return {
-              id: address,
-            };
           }
           return null;
         } catch (e) {

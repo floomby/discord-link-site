@@ -106,62 +106,105 @@ export const linkRouter = createTRPCRouter({
       try {
         const account = await recoverAccount(ctx.session.user);
 
-        let discordId = "";
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        const abort = async () => {
+          await session.abortTransaction();
+          await session.endSession();
+        };
+        try {
+          let discordId = "";
 
-        if (account.provider === "discord") {
-          await Linkable.findOneAndUpdate(
-            {
-              $or: [
-                { discordId: account.providerAccountId },
-                { csrfToken: input.csrfToken },
-              ],
-            },
-            {
-              discordId: account.providerAccountId,
+          if (account.provider === "discord") {
+            await Linkable.findOneAndUpdate(
+              {
+                $or: [
+                  { discordId: account.providerAccountId },
+                  { csrfToken: input.csrfToken },
+                ],
+              },
+              {
+                discordId: account.providerAccountId,
+                csrfToken: input.csrfToken,
+              },
+              { upsert: true }
+            );
+
+            discordId = account.providerAccountId;
+          } else {
+            const linkable = await Linkable.findOne({
               csrfToken: input.csrfToken,
+            });
+
+            if (!linkable) {
+              throw new Error("Invalid CSRF token");
+            }
+
+            discordId = linkable.discordId;
+          }
+
+          // const old = await ProviderLink.findOneAndUpdate(
+          //   {
+          //     $and: [
+          //       {
+          //         $or: [
+          //           { discordId },
+          //           { providerId: account.providerAccountId },
+          //         ],
+          //       },
+          //       { provider: account.provider },
+          //     ],
+          //   },
+          //   {
+          //     discordId,
+          //     providerId: account.providerAccountId,
+          //     userId: account.userId,
+          //     provider: account.provider,
+          //     linkedAt: new Date(),
+          //   },
+          //   { upsert: true }
+          // );
+          const old = await ProviderLink.findOneAndUpdate(
+            { provider: account.provider, discordId },
+            {
+              discordId,
+              providerId: account.providerAccountId,
+              userId: account.userId,
+              provider: account.provider,
+              linkedAt: new Date(),
             },
             { upsert: true }
           );
 
-          discordId = account.providerAccountId;
-        } else {
-          const linkable = await Linkable.findOne({
-            csrfToken: input.csrfToken,
-          });
-
-          if (!linkable) {
-            throw new Error("Invalid CSRF token");
+          if (old?.providerId === account.providerAccountId) {
+            await session.commitTransaction();
+            await session.endSession();
+            return account.provider as string;
           }
 
-          discordId = linkable.discordId;
-        }
-        const old = await ProviderLink.findOneAndUpdate(
-          {
-            $and: [
-              {
-                $or: [{ discordId }, { providerId: account.providerAccountId }],
-              },
-              { provider: account.provider },
-            ],
-          },
-          {
-            discordId,
-            providerId: account.providerAccountId,
-            userId: account.userId,
+          const other = await ProviderLink.findOne({
             provider: account.provider,
-            linkedAt: new Date(),
-          },
-          { upsert: true }
-        );
+            providerId: account.providerAccountId,
+            discordId: { $ne: discordId },
+          });
 
-        // TODO Call webhook on both the old account and the new account
-        const oldDiscordId = old?.discordId;
-        if (oldDiscordId && oldDiscordId !== discordId) {
-          updateDiscordUser(oldDiscordId);
+          if (other) {
+            await ProviderLink.deleteOne({ _id: other._id });                
+          }
+
+          await session.commitTransaction();
+          await session.endSession();
+
+          if (other) {
+            updateDiscordUser(other.discordId);
+          }
+          updateDiscordUser(discordId);
+
+          return account.provider as string;
+        } catch (error) {
+          await abort();
+          throw error;
         }
-        updateDiscordUser(discordId);
-
-        return account.provider as string;
       } catch (error) {
         console.error(error);
         throw new Error("Failed to link");
