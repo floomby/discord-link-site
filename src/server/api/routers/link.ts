@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import mongoose from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import { z } from "zod";
 
 import {
@@ -16,8 +16,6 @@ type ContextUser = {
   email?: string | null | undefined;
   image?: string | null | undefined;
 };
-
-// REFACTOR ME: This should be implemented in the trpc middleware
 const recoverAccount = async (user: ContextUser) => {
   try {
     await db();
@@ -63,14 +61,21 @@ export const linkRouter = createTRPCRouter({
         // get the current providers linked
         const providers = [];
 
-        const using = ["discord", "twitter", "google"];
+        const using = ["discord", "twitter", "google", "ethereum"];
 
-        for (const provider of using) {
-          const link = await ProviderLink.findOne({
-            address: linkable.address,
-            provider,
-          });
-          if (link) {
+        const links = await ProviderLink.find({
+          discordId: linkable.discordId,
+          provider: { $in: using },
+        });
+
+        for (const link of links) {
+          if (link.provider === "ethereum") {
+            providers.push({
+              id: "ethereum",
+              name: link.providerId,
+              image: "",
+            });
+          } else {
             const user = await mongoose.connection.db
               .collection("users")
               .findOne({
@@ -80,14 +85,14 @@ export const linkRouter = createTRPCRouter({
               throw new Error("User not found");
             }
             providers.push({
-              id: provider,
+              id: link.provider,
               name: user.name ?? "",
               image: user.image ?? "",
             });
           }
         }
 
-        return { linkable: true, address: linkable.address, linked: providers };
+        return { linkable: true, linked: providers };
       } catch (error) {
         console.error(error);
         throw new Error("Unable to query linkablity status");
@@ -100,32 +105,46 @@ export const linkRouter = createTRPCRouter({
       try {
         const account = await recoverAccount(ctx.session.user);
 
-        // TODO Make this a transaction
-        // const session = await mongoose.startSession();
-        // session.startTransaction();
+        let discordId = "";
 
-        const linkable = await Linkable.findOne({
-          csrfToken: input.csrfToken,
-        });
+        if (account.provider === "discord") {
+          await Linkable.findOneAndUpdate(
+            {
+              $or: [
+                { discordId: account.providerAccountId },
+                { csrfToken: input.csrfToken },
+              ],
+            },
+            {
+              discordId: account.providerAccountId,
+              csrfToken: input.csrfToken,
+            },
+            { upsert: true }
+          );
 
-        if (!linkable) {
-          throw new Error("Invalid CSRF token");
+          discordId = account.providerAccountId;
+        } else {
+          const linkable = await Linkable.findOne({
+            csrfToken: input.csrfToken,
+          });
+
+          if (!linkable) {
+            throw new Error("Invalid CSRF token");
+          }
+
+          discordId = linkable.discordId;
         }
-
-        await ProviderLink.findOneAndUpdate(
+        const old = await ProviderLink.findOneAndUpdate(
           {
             $and: [
               {
-                $or: [
-                  { address: linkable.address },
-                  { providerId: account.providerAccountId },
-                ],
+                $or: [{ discordId }, { providerId: account.providerAccountId }],
               },
               { provider: account.provider },
             ],
           },
           {
-            address: linkable.address,
+            discordId,
             providerId: account.providerAccountId,
             userId: account.userId,
             provider: account.provider,
@@ -133,6 +152,8 @@ export const linkRouter = createTRPCRouter({
           },
           { upsert: true }
         );
+
+        // TODO Call webhook on both the old account and the new account
 
         return account.provider as string;
       } catch (error) {

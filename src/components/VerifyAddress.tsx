@@ -7,19 +7,22 @@ import { colorFromFeedbackLevel, FeedbackLevel } from "~/lib/feedback";
 import { useNotificationQueue } from "~/lib/notifications";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import AddressDisplay from "./AddressDisplay";
 
 type VerifyAddressProps = {
   refetch: () => Promise<any>;
-  linked: boolean;
+  linkedAddress: string | undefined;
 };
-const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
+const VerifyAddress: React.FC<VerifyAddressProps> = ({
+  refetch,
+  linkedAddress,
+}) => {
   const { signMessageAsync } = useSignMessage();
   const { chain } = useNetwork();
   const { address, isConnected } = useAccount();
   const { connect, isSuccess } = useConnect({
     connector: new InjectedConnector(),
   });
-  const { data: session } = useSession();
 
   const notifications = useNotificationQueue();
 
@@ -76,20 +79,24 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({ refetch, linked }) => {
   }, [isSuccess, hasFired]);
 
   return (
-    <button
-      className={
-        "rounded px-4 py-2 font-semibold" +
-        colorFromFeedbackLevel(FeedbackLevel.Success, true)
-      }
-      onClick={(e) => {
-        void handleLogin();
-      }}
-    >
-      <div className="flex flex-row items-center justify-center">
-        {linked ? "Switch Accounts" : "Verify Address"}
-        <FontAwesomeIcon icon={faEthereum} className="ml-2 h-6" />
-      </div>
-    </button>
+    <div className="flex flex-col items-center justify-center gap-2">
+      <button
+        className={
+          "rounded px-4 py-2 font-semibold" +
+          colorFromFeedbackLevel(FeedbackLevel.Secondary, true) +
+          (!linkedAddress || address !== linkedAddress ? " opacity-80" : "")
+        }
+        onClick={(e) => {
+          void handleLogin();
+        }}
+      >
+        <div className="flex flex-row items-center justify-center">
+          {!linkedAddress ? "Verify Address" : (address !== linkedAddress ? "Switch Accounts" : "Verified")}
+          <FontAwesomeIcon icon={faEthereum} className="ml-2 h-6" />
+        </div>
+      </button>
+      <AddressDisplay address={linkedAddress} />
+    </div>
   );
 };
 

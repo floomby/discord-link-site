@@ -11,7 +11,7 @@ import { SiweMessage } from "siwe";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import db from "~/utils/db";
 
-import { Linkable } from "~/utils/odm";
+import { Linkable, ProviderLink } from "~/utils/odm";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -38,7 +38,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               | string
               | Partial<SiweMessage>
           );
-          // const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
           const result = await siwe.verify({
             signature: credentials?.signature || "",
@@ -50,19 +49,44 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 
           if (result.success) {
             await db();
-            // upsert the link user with the csrf token
+            // upsert the ethereum session with the address and csrfToken
             const csrfToken =
               (credentials as unknown as { csrfToken: string })?.csrfToken ||
               "";
             const address = siwe.address;
-            await Linkable.findOneAndUpdate(
-              { $or: [{ address }, { csrfToken }] },
-              { address, csrfToken, createdAt: new Date() },
+
+            const link = await Linkable.findOne({ csrfToken });
+
+            if (!link) {
+              return null;
+            }
+
+            const old = await ProviderLink.findOneAndUpdate(
+              {
+                $and: [
+                  {
+                    $or: [
+                      { discordId: link.discordId },
+                      { providerId: address },
+                    ],
+                  },
+                  { provider: "ethereum" },
+                ],
+              },
+              {
+                discordId: link.discordId,
+                providerId: address,
+                userId: null,
+                provider: "ethereum",
+                linkedAt: new Date(),
+              },
               { upsert: true }
             );
 
+            // TODO Call webhook on both the old account and the new account
+
             return {
-              id: siwe.address,
+              id: address,
             };
           }
           return null;
@@ -74,11 +98,11 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     }),
   ];
 
-  const isDefaultSigninPage =
+  const isDefaultSignInPage =
     req.method === "GET" && req.query.nextauth?.includes("signin");
 
-  // Hide Sign-In with Ethereum from default sign page
-  if (isDefaultSigninPage) {
+  // Hide log in with ethereum from the default sign in page (I need to fix this part anyways)
+  if (isDefaultSignInPage) {
     providers.pop();
   }
 

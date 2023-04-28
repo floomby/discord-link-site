@@ -1,7 +1,7 @@
 import mongoose, { ObjectId, Schema, SchemaType } from "mongoose";
 
 interface IProviderLink {
-  address: string;
+  discordId: string;
   provider: string;
   providerId: string;
   userId: ObjectId;
@@ -9,25 +9,25 @@ interface IProviderLink {
 }
 
 const ProviderLinkSchema = new mongoose.Schema<IProviderLink>({
-  address: { type: String, required: true },
+  discordId: { type: String, required: true },
   provider: { type: String, required: true },
   providerId: { type: String, required: true },
-  userId: { type: Schema.Types.ObjectId, required: true },
+  userId: { type: Schema.Types.ObjectId },
   linkedAt: { type: Date, default: Date.now },
 });
 
 const ProviderLink =
-  (mongoose.models.DiscordLink as mongoose.Model<IProviderLink>) ||
+  (mongoose.models.ProviderLink as mongoose.Model<IProviderLink>) ||
   mongoose.model<IProviderLink>("ProviderLink", ProviderLinkSchema);
 
-interface ILinkable {
-  address: string;
+export interface ILinkable {
+  discordId: string;
   csrfToken: string;
   createdAt: Date;
 }
 
 const LinkableSchema = new mongoose.Schema<ILinkable>({
-  address: { type: String, required: true, unique: true },
+  discordId: { type: String, required: true, unique: true },
   csrfToken: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now, expires: "5h" },
 });

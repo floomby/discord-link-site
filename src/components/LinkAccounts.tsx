@@ -1,6 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import LinkAccount from "./LinkAccount";
-import { faDiscord, faGoogle, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import {
+  faDiscord,
+  faGoogle,
+  faTwitter,
+} from "@fortawesome/free-brands-svg-icons";
+import VerifyAddress from "./VerifyAddress";
 
 type LinkAccountsProps = {
   show: boolean;
@@ -10,11 +15,13 @@ type LinkAccountsProps = {
     image: string;
   }[];
   showProfiles: boolean;
+  refetch: () => Promise<any>;
 };
 const LinkAccounts: React.FC<LinkAccountsProps> = ({
   show,
   linkedProviders,
   showProfiles,
+  refetch,
 }) => {
   return (
     <AnimatePresence>
@@ -26,18 +33,9 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
           transition={{ duration: 0.2 }}
           className="flex flex-row items-center justify-center gap-4"
         >
-          <LinkAccount
-            id="discord"
-            name="Discord"
-            iconDefinition={faDiscord}
-            linked={linkedProviders.map((p) => p.id).includes("discord")}
-            profileData={{
-              ...(linkedProviders.find((p) => p.id === "discord") || {
-                name: undefined,
-                image: undefined,
-              }),
-              show: showProfiles,
-            }}
+          <VerifyAddress
+            refetch={refetch}
+            linkedAddress={linkedProviders.find((p) => p.id === "ethereum")?.name}
           />
           <LinkAccount
             id="twitter"

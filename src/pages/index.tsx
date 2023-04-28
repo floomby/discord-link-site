@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useNotificationQueue } from "~/lib/notifications";
 import VerifyAddress from "~/components/VerifyAddress";
 import AddressDisplay from "~/components/AddressDisplay";
+import DiscordSignIn from "~/components/DiscordSignIn";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
@@ -20,14 +21,14 @@ const Home: NextPage = () => {
 
   const { mutate: link } = api.link.link.useMutation({
     onSuccess: async (provider: string) => {
-      await refetch();
-      await signOut();
       const id = new Date().getTime().toString();
       notifications.add(id, {
         level: FeedbackLevel.Success,
         message: `Successfully linked ${provider} account`,
         duration: 6000,
       });
+      await refetch();
+      await signOut();
     },
     onError: (error) => {
       const id = new Date().getTime().toString();
@@ -88,36 +89,25 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 py-2">
         <h1 className="mb-8 text-6xl font-bold">Link Socials</h1>
-        {/* <button
-        className={
-          "rounded px-4 py-2 font-semibold" +
-          colorFromFeedbackLevel(FeedbackLevel.Success, true)
-        }
-        onClick={() => void router.push("/siwe")}
-      >
-        Verify Address
-      </button> */}
         <div className="flex flex-row items-center justify-center gap-4">
-          <AddressDisplay address={linkData?.address} />
-          <VerifyAddress refetch={refetch} linked={!!linkData?.linked} />
+          <DiscordSignIn
+            profileData={{
+              ...(linkData?.linked?.find((p) => p.id === "discord") || {
+                name: undefined,
+                image: undefined,
+              }),
+              show: status === "unauthenticated" || !session?.user?.name,
+            }}
+            linked={!!linkData?.linked?.map((p) => p.id).includes("discord")}
+          />
+          {/* <AddressDisplay address={linkData?.address} />
+          <VerifyAddress refetch={refetch} linked={!!linkData?.linked} /> */}
         </div>
-        {/* {status === "authenticated" && (
-        <button
-          className={
-            "rounded px-4 py-2 font-semibold" +
-            colorFromFeedbackLevel(FeedbackLevel.Primary, true)
-          }
-          onClick={(e) => {
-            void signOut();
-          }}
-        >
-          Sign Out
-        </button>
-      )} */}
         <LinkAccounts
           show={!!linkData?.linkable}
           linkedProviders={linkData?.linked ?? []}
           showProfiles={status === "unauthenticated" || !session?.user?.name}
+          refetch={refetch}
         />
       </main>
     </>
