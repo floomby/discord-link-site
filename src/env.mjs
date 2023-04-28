@@ -25,6 +25,7 @@ const server = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   MONGODB_URI: z.string(),
+  BOT_WEBHOOK_URI: z.string(),
 });
 
 /**
@@ -56,6 +57,7 @@ const processEnv = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   MONGODB_URI: process.env.MONGODB_URI,
+  BOT_WEBHOOK_URI: process.env.BOT_WEBHOOK_URI,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

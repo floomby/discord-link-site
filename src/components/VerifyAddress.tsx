@@ -82,7 +82,7 @@ const VerifyAddress: React.FC<VerifyAddressProps> = ({
     <div className="flex flex-col items-center justify-center gap-2">
       <button
         className={
-          "rounded px-4 py-2 font-semibold" +
+          "rounded-lg px-4 py-2 font-semibold w-full" +
           colorFromFeedbackLevel(FeedbackLevel.Secondary, true) +
           (!linkedAddress || address !== linkedAddress ? " opacity-80" : "")
         }

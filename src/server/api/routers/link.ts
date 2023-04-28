@@ -10,6 +10,7 @@ import {
 } from "~/server/api/trpc";
 import db from "~/utils/db";
 import { Linkable, ProviderLink } from "~/utils/odm";
+import { updateDiscordUser } from "~/utils/webhook";
 
 type ContextUser = {
   name?: string | null | undefined;
@@ -154,6 +155,11 @@ export const linkRouter = createTRPCRouter({
         );
 
         // TODO Call webhook on both the old account and the new account
+        const oldDiscordId = old?.discordId;
+        if (oldDiscordId && oldDiscordId !== discordId) {
+          updateDiscordUser(oldDiscordId);
+        }
+        updateDiscordUser(discordId);
 
         return account.provider as string;
       } catch (error) {

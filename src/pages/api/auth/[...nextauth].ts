@@ -12,6 +12,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 import db from "~/utils/db";
 
 import { Linkable, ProviderLink } from "~/utils/odm";
+import { updateDiscordUser } from "~/utils/webhook";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -83,7 +84,13 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               { upsert: true }
             );
 
-            // TODO Call webhook on both the old account and the new account
+            if (old?.providerId !== address) {
+              const oldDiscordId = old?.discordId;
+              if (oldDiscordId && oldDiscordId !== link.discordId) {
+                updateDiscordUser(oldDiscordId);
+              }
+              updateDiscordUser(link.discordId);
+            }
 
             return {
               id: address,
