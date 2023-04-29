@@ -15,3 +15,14 @@ Verify your social media and ethereum accounts for the Social Link discord bot.
 ### Commands
 
 - `/setrole` - sets the verification role to assign (make sure that the bot has a higher role than the verification role)
+- `/displayrole` - displays the verification role for the server
+- `/sync` - re-syncs every user on the server. This is only here if something goes wrong and hopefully shouldn't be needed
+- `/setproviders` - sets the verification providers for the server in the form of `<provider>,<provider>,...`
+- `/listproviders` - lists the verification providers for the server
+- `/supportedproviders` - lists the supported verification providers
+
+### Notes
+
+- Currently the bot checks if the user has revoked their twitter application access (every 20 minutes, subject to change in the future) and if so, it will remove their verified role if the server requires twitter verification.
+- Revoking google verification is not currently implemented.
+- The source for the bot is [located here](https://github.com/floomby/discord-link-bot).
