@@ -11,6 +11,7 @@ Verify your social media and ethereum accounts for the Social Link discord bot.
 ### Get the bot
 
 [Invite the bot](https://discord.com/api/oauth2/authorize?client_id=1099405375624728597&permissions=2415921152&scope=bot)
+
 [Link your accounts here](https://social-link.xyz)
 
 ### Commands
