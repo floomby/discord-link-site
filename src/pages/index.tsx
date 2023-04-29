@@ -123,10 +123,13 @@ const Home: NextPage = () => {
           COMING SOON: Per server privacy policies. Currently all account
           details are kept private.
           <br />
-          Only the information regarding if you have linked the accounts required for
-          the server verification role is divulged.
+          Only the information regarding if you have linked the accounts
+          required for the server verification role is divulged.
         </p>
-        <Link href="https://github.com/floomby/discord-link-site" className="cursor-pointer rounded-md bg-gray-200 dark:bg-gray-800 p-2">
+        <Link
+          href="https://github.com/floomby/discord-link-site"
+          className="cursor-pointer rounded-md bg-gray-200 p-2 hover:bg-gray-300 dark:bg-gray-800 hover:dark:bg-gray-700"
+        >
           <div className="flex flex-row items-center justify-center gap-2 font-semibold">
             <FontAwesomeIcon className="h-6" icon={faGithub} />
             View on GitHub
