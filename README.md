@@ -11,3 +11,7 @@ Link your social media accounts to your ethereum address for verification by the
 ### Get the bot
 
 [Invite the bot](https://discord.com/api/oauth2/authorize?client_id=1099405375624728597&permissions=2415921152&scope=bot)
+
+### Commands
+
+- `/setrole` - sets the verification role to assign (make sure that the bot has a higher role than the verification role)
