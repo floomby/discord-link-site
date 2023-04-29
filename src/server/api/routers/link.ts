@@ -39,7 +39,7 @@ const recoverAccount = async (user: ContextUser) => {
     return account;
   } catch (error) {
     console.error(error);
-    throw new Error("Failed to recover account");
+    return null;
   }
 };
 
@@ -75,21 +75,32 @@ export const linkRouter = createTRPCRouter({
               id: "ethereum",
               name: link.providerId,
               image: "",
+              revokedAt: null,
             });
           } else {
-            const user = await mongoose.connection.db
-              .collection("users")
-              .findOne({
-                _id: link.userId,
+            if (link.revokedAt) {
+              providers.push({
+                id: link.provider,
+                name: "",
+                image: "",
+                revokedAt: link.revokedAt ?? null,
               });
-            if (!user) {
-              throw new Error("User not found");
+            } else {
+              const user = await mongoose.connection.db
+                .collection("users")
+                .findOne({
+                  _id: link.userId,
+                });
+              if (!user) {
+                throw new Error("User not found");
+              }
+              providers.push({
+                id: link.provider,
+                name: user.name ?? "",
+                image: user.image ?? "",
+                revokedAt: link.revokedAt ?? null,
+              });
             }
-            providers.push({
-              id: link.provider,
-              name: user.name ?? "",
-              image: user.image ?? "",
-            });
           }
         }
 
@@ -105,6 +116,11 @@ export const linkRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const account = await recoverAccount(ctx.session.user);
+
+        if (!account) {
+          await Linkable.deleteOne({ csrfToken: input.csrfToken });
+          throw new Error("Unable to recover account");
+        }
 
         const session = await mongoose.startSession();
         session.startTransaction();
@@ -127,14 +143,24 @@ export const linkRouter = createTRPCRouter({
                 discordId: account.providerAccountId,
                 csrfToken: input.csrfToken,
               },
-              { upsert: true }
+              { upsert: true, session }
             );
 
             discordId = account.providerAccountId;
+            updateDiscordUser(discordId);
+
+            await session.commitTransaction();
+            await session.endSession();
+
+            return account.provider as string;
           } else {
-            const linkable = await Linkable.findOne({
-              csrfToken: input.csrfToken,
-            });
+            const linkable = await Linkable.findOne(
+              {
+                csrfToken: input.csrfToken,
+              },
+              null,
+              { session }
+            );
 
             if (!linkable) {
               throw new Error("Invalid CSRF token");
@@ -143,27 +169,6 @@ export const linkRouter = createTRPCRouter({
             discordId = linkable.discordId;
           }
 
-          // const old = await ProviderLink.findOneAndUpdate(
-          //   {
-          //     $and: [
-          //       {
-          //         $or: [
-          //           { discordId },
-          //           { providerId: account.providerAccountId },
-          //         ],
-          //       },
-          //       { provider: account.provider },
-          //     ],
-          //   },
-          //   {
-          //     discordId,
-          //     providerId: account.providerAccountId,
-          //     userId: account.userId,
-          //     provider: account.provider,
-          //     linkedAt: new Date(),
-          //   },
-          //   { upsert: true }
-          // );
           const old = await ProviderLink.findOneAndUpdate(
             { provider: account.provider, discordId },
             {
@@ -172,8 +177,9 @@ export const linkRouter = createTRPCRouter({
               userId: account.userId,
               provider: account.provider,
               linkedAt: new Date(),
+              revokedAt: null,
             },
-            { upsert: true }
+            { upsert: true, session }
           );
 
           if (old?.providerId === account.providerAccountId) {
@@ -182,14 +188,18 @@ export const linkRouter = createTRPCRouter({
             return account.provider as string;
           }
 
-          const other = await ProviderLink.findOne({
-            provider: account.provider,
-            providerId: account.providerAccountId,
-            discordId: { $ne: discordId },
-          });
+          const other = await ProviderLink.findOne(
+            {
+              provider: account.provider,
+              providerId: account.providerAccountId,
+              discordId: { $ne: discordId },
+            },
+            null,
+            { session }
+          );
 
           if (other) {
-            await ProviderLink.deleteOne({ _id: other._id });                
+            await ProviderLink.deleteOne({ _id: other._id }, { session });
           }
 
           await session.commitTransaction();

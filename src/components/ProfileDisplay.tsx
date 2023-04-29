@@ -4,10 +4,16 @@ import Image from "next/image";
 export type ProfileDisplayProps = {
   name: string | undefined;
   image: string | undefined;
+  revokedAt: Date | null;
   show: boolean;
 };
-const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ name, image, show }) => {
-  const shown = (name || image) && show;
+const ProfileDisplay: React.FC<ProfileDisplayProps> = ({
+  name,
+  image,
+  revokedAt,
+  show,
+}) => {
+  const shown = (name || image || revokedAt) && show;
 
   return (
     <AnimatePresence>
@@ -32,6 +38,9 @@ const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ name, image, show }) =>
                 height={32}
               />
             </div>
+          )}
+          {revokedAt && (
+            <span>(Revoked - {revokedAt.toLocaleDateString("en-US", {})})</span>
           )}
         </motion.div>
       )}

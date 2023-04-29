@@ -80,7 +80,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
                   provider: "ethereum",
                   linkedAt: new Date(),
                 },
-                { upsert: true }
+                { upsert: true, session }
               );
 
               if (old?.providerId === address) {
@@ -91,15 +91,19 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
                 };
               }
 
-              const other = await ProviderLink.findOne({
-                provider: "ethereum",
-                // case insensitive
-                providerId: { $regex: new RegExp(`^${address}$`, "i") },
-                discordId: { $ne: link.discordId },
-              });
+              const other = await ProviderLink.findOne(
+                {
+                  provider: "ethereum",
+                  // case insensitive
+                  providerId: { $regex: new RegExp(`^${address}$`, "i") },
+                  discordId: { $ne: link.discordId },
+                },
+                null,
+                { session }
+              );
 
               if (other) {
-                await ProviderLink.deleteOne({ _id: other._id });                
+                await ProviderLink.deleteOne({ _id: other._id }, { session });
               }
 
               await session.commitTransaction();

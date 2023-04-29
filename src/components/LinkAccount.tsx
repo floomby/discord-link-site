@@ -26,11 +26,11 @@ const LinkAccount: React.FC<LinkAccountProps> = ({
         className={
           "w-full rounded-lg px-2 py-2 font-semibold" +
           colorFromFeedbackLevel(FeedbackLevel.Secondary, true) +
-          (linked ? " opacity-80" : "")
+          (linked && !profileData.revokedAt ? " opacity-80" : "")
         }
       >
         <div className="flex flex-row items-center justify-center">
-          {linked ? "Change" : "Link"} {name}
+          {linked ? "Change" : "Link"} {name} {profileData.revokedAt && "(Revoked)"}
           <FontAwesomeIcon icon={iconDefinition} className="ml-2 h-6" />
         </div>
       </button>

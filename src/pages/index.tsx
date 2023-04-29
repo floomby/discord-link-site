@@ -95,6 +95,7 @@ const Home: NextPage = () => {
               ...(linkData?.linked?.find((p) => p.id === "discord") || {
                 name: undefined,
                 image: undefined,
+                revokedAt: null,
               }),
               show: status === "unauthenticated" || !session?.user?.name,
             }}

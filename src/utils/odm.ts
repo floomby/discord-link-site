@@ -6,6 +6,7 @@ interface IProviderLink {
   providerId: string;
   userId: ObjectId;
   linkedAt: Date;
+  revokedAt?: Date;
 }
 
 const ProviderLinkSchema = new mongoose.Schema<IProviderLink>({
@@ -14,6 +15,7 @@ const ProviderLinkSchema = new mongoose.Schema<IProviderLink>({
   providerId: { type: String, required: true },
   userId: { type: Schema.Types.ObjectId },
   linkedAt: { type: Date, default: Date.now },
+  revokedAt: { type: Date },
 });
 
 const ProviderLink =

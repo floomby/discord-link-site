@@ -13,6 +13,7 @@ type LinkAccountsProps = {
     id: string;
     name: string;
     image: string;
+    revokedAt: Date | null;
   }[];
   showProfiles: boolean;
   refetch: () => Promise<any>;
@@ -46,6 +47,7 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
               ...(linkedProviders.find((p) => p.id === "twitter") || {
                 name: undefined,
                 image: undefined,
+                revokedAt: null,
               }),
               show: showProfiles,
             }}
@@ -59,6 +61,7 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
               ...(linkedProviders.find((p) => p.id === "google") || {
                 name: undefined,
                 image: undefined,
+                revokedAt: null,
               }),
               show: showProfiles,
             }}
