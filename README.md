@@ -12,7 +12,7 @@ Verify your social media and ethereum accounts for the Social Link discord bot.
 
 [Invite the bot](https://discord.com/api/oauth2/authorize?client_id=1099405375624728597&permissions=2415921152&scope=bot)
 
-[Link your accounts here](https://social-link.xyz)
+[Link your accounts](https://social-link.xyz)
 
 ### Commands
 
@@ -25,6 +25,6 @@ Verify your social media and ethereum accounts for the Social Link discord bot.
 
 ### Notes
 
-- Currently the bot checks if the user has revoked their twitter application access (every 20 minutes, subject to change in the future) and if so, it will remove their verified role if the server requires twitter verification.
+- Currently the bot checks if the user has revoked their oauth application access (every 20 minutes, subject to change in the future) and if so, it will remove their verified role.
 - Revoking google verification is not currently implemented.
 - The source for the bot is [located here](https://github.com/floomby/discord-link-bot).
