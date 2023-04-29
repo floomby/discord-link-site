@@ -12,6 +12,8 @@ import { useNotificationQueue } from "~/lib/notifications";
 import VerifyAddress from "~/components/VerifyAddress";
 import AddressDisplay from "~/components/AddressDisplay";
 import DiscordSignIn from "~/components/DiscordSignIn";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
@@ -88,7 +90,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 py-2">
-        <h1 className="mb-8 text-6xl font-bold">Link Socials</h1>
+        <h1 className="mb-4 text-6xl font-bold">Link Socials</h1>
         <div className="flex flex-row items-center justify-center gap-4">
           <DiscordSignIn
             profileData={{
@@ -110,6 +112,26 @@ const Home: NextPage = () => {
           showProfiles={status === "unauthenticated" || !session?.user?.name}
           refetch={refetch}
         />
+        <div className="relative flex w-full items-center">
+          <div className="mx-4 mt-2 flex-grow border-2 border-t border-black dark:border-white"></div>
+          <span className="flex-shrink text-4xl font-semibold">
+            Privacy Settings
+          </span>
+          <div className="mx-4 mt-2 flex-grow border-2 border-t border-black dark:border-white"></div>
+        </div>
+        <p className="break-normal">
+          COMING SOON: Per server privacy policies. Currently all account
+          details are kept private.
+          <br />
+          Only the information regarding if you have linked the accounts required for
+          the server verification role is divulged.
+        </p>
+        <Link href="https://github.com/floomby/discord-link-site" className="cursor-pointer rounded-md bg-gray-200 dark:bg-gray-800 p-2">
+          <div className="flex flex-row items-center justify-center gap-2 font-semibold">
+            <FontAwesomeIcon className="h-6" icon={faGithub} />
+            View on GitHub
+          </div>
+        </Link>
       </main>
     </>
   );

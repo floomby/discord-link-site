@@ -67,20 +67,20 @@ export const authOptions: NextAuthOptions = {
       profile(profile) {
         if (profile.avatar === null) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          const defaultAvatarNumber = parseInt(profile.discriminator) % 5
-          profile.image_url = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNumber}.png`
+          const defaultAvatarNumber = parseInt(profile.discriminator) % 5;
+          profile.image_url = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNumber}.png`;
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          const format = profile.avatar.startsWith("a_") ? "gif" : "png"
-          profile.image_url = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${format}`
+          const format = profile.avatar.startsWith("a_") ? "gif" : "png";
+          profile.image_url = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${format}`;
         }
         return {
           id: profile.id,
           name: profile.username,
           email: `${profile.email}-discord`,
           image: profile.image_url,
-        }
-      }
+        };
+      },
     }),
     TwitterProvider({
       clientId: env.TWITTER_CLIENT_ID,
@@ -97,8 +97,8 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: `${profile.email}-google`,
           image: profile.picture,
-        }
-      }
+        };
+      },
     }),
     /**
      * ...add more providers here.
@@ -119,6 +119,10 @@ export const authOptions: NextAuthOptions = {
       return mongoose.connection.getClient();
     })()
   ),
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
+  },
 };
 
 /**
