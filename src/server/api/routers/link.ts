@@ -62,7 +62,31 @@ export const linkRouter = createTRPCRouter({
         // get the current providers linked
         const providers = [];
 
-        const using = ["discord", "twitter", "google", "ethereum", "github"];
+        const using = ["twitter", "google", "ethereum", "github"];
+
+        const discordAccount = await mongoose.connection.db
+          .collection("accounts")
+          .findOne({
+            providerAccountId: linkable.discordId,
+          });
+        if (!discordAccount) {
+          throw new Error("Unable to find discord account");
+        }
+        const discordUser = await mongoose.connection.db
+          .collection("users")
+          .findOne({
+            _id: discordAccount.userId,
+          });
+        if (!discordUser) {
+          throw new Error("Unable to find discord user");
+        }
+
+        providers.push({
+          id: "discord",
+          name: discordUser.name ?? "",
+          image: discordUser.image ?? "",
+          revokedAt: null,
+        });
 
         const links = await ProviderLink.find({
           discordId: linkable.discordId,

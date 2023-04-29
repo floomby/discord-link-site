@@ -23,7 +23,7 @@ const DiscordSignIn: React.FC<DiscordSignInProps> = ({
         }
       >
         <div className="flex flex-row items-center justify-center">
-          {linked ? "Switch Accounts" : "Sign In"}
+          {linked ? "Switch Accounts" : "Connect Discord"}
           <FontAwesomeIcon icon={faDiscord} className="ml-2 h-6" />
         </div>
       </button>

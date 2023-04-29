@@ -15,7 +15,7 @@ const SignIn: NextPage = () => {
       <p className="text-lg">Error: {error as string}</p>
       <button
         className={
-          "rounded-lg px-4 py-2" + colorFromFeedbackLevel(FeedbackLevel.Warning)
+          "rounded-lg px-4 py-2" + colorFromFeedbackLevel(FeedbackLevel.Warning, true)
         }
         onClick={() => {
           void signOut({ callbackUrl: "/" });
