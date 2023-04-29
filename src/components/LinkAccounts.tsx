@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import LinkAccount from "./LinkAccount";
 import {
-  faDiscord,
+  faGithub,
   faGoogle,
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
@@ -59,6 +59,20 @@ const LinkAccounts: React.FC<LinkAccountsProps> = ({
             linked={linkedProviders.map((p) => p.id).includes("google")}
             profileData={{
               ...(linkedProviders.find((p) => p.id === "google") || {
+                name: undefined,
+                image: undefined,
+                revokedAt: null,
+              }),
+              show: showProfiles,
+            }}
+          />
+          <LinkAccount
+            id="github"
+            name="GitHub"
+            iconDefinition={faGithub}
+            linked={linkedProviders.map((p) => p.id).includes("github")}
+            profileData={{
+              ...(linkedProviders.find((p) => p.id === "github") || {
                 name: undefined,
                 image: undefined,
                 revokedAt: null,

@@ -62,7 +62,7 @@ export const linkRouter = createTRPCRouter({
         // get the current providers linked
         const providers = [];
 
-        const using = ["discord", "twitter", "google", "ethereum"];
+        const using = ["discord", "twitter", "google", "ethereum", "github"];
 
         const links = await ProviderLink.find({
           discordId: linkable.discordId,

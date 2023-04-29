@@ -12,6 +12,7 @@ import {
 import DiscordProvider from "next-auth/providers/discord";
 import TwitterProvider from "next-auth/providers/twitter";
 import GoogleProvider from "next-auth/providers/google";
+import GithubProvider, { GithubEmail } from "next-auth/providers/github";
 import { env } from "~/env.mjs";
 import db from "~/utils/db";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
@@ -100,15 +101,36 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
+    GithubProvider({
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      userinfo: {
+        url: "https://api.github.com/user",
+        async request({ client, tokens }) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const profile = await client.userinfo(tokens.access_token!);
+
+          if (!profile.email) {
+            // If the user does not have a public email, get another via the GitHub API
+            // See https://docs.github.com/en/rest/users/emails#list-public-email-addresses-for-the-authenticated-user
+            const res = await fetch("https://api.github.com/user/emails", {
+              headers: { Authorization: `token ${tokens.access_token}` },
+            });
+
+            if (res.ok) {
+              const emails: GithubEmail[] = await res.json();
+              profile.email = (
+                emails.find((e) => e.primary) ?? emails[0]!
+              ).email;
+            }
+          }
+
+          profile.email = `${profile.email}-github`;
+
+          return profile;
+        },
+      },
+    }),
   ],
   session: {
     strategy: "jwt",

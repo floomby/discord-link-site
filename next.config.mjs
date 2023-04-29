@@ -25,6 +25,7 @@ const config = {
       "cdn.discordapp.com",
       "pbs.twimg.com",
       "lh3.googleusercontent.com",
+      "avatars.githubusercontent.com",
     ],
   },
 };
