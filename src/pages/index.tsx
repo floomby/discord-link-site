@@ -114,17 +114,12 @@ const Home: NextPage = () => {
         />
         <div className="relative flex w-full items-center">
           <div className="mx-4 mt-2 flex-grow border-2 border-t border-black dark:border-white"></div>
-          <span className="flex-shrink text-4xl font-semibold">
-            Privacy Settings
-          </span>
+          <span className="flex-shrink text-4xl font-semibold">Privacy</span>
           <div className="mx-4 mt-2 flex-grow border-2 border-t border-black dark:border-white"></div>
         </div>
         <p className="break-normal">
-          COMING SOON: Per server privacy policies. Currently all account
-          details are kept private.
-          <br />
-          Only the information regarding if you have linked the accounts
-          required for the server verification role is divulged.
+          All account details are kept private. Only the information about if
+          the requisite accounts have been linked is available.
         </p>
         <Link
           href="https://github.com/floomby/discord-link-site"
